@@ -1,65 +1,36 @@
-# EarthVeda Essentials
+# Fix repeated Vercel configuration formatting failures
 
-A redesigned React/Vite storefront built on the Earthveda JavaScript commerce foundation. The default mode is a standalone **Vercel frontend preview**, with German/English routes, product discovery, a pair-based flavour quiz, bundles, wishlist, basket, exact delivery totals and a no-payment checkout walkthrough.
+The deployment of `EarthVeda_3.O`, branch `master`, commit `9f748f3`, stopped in Prettier on `vercel.json`. The exact public commit's configuration and `.prettierrc.json` match the source that passes formatting locally. The log does not expose the deployment-time file contents, so the exact cause of the formatting difference is not established. Reformatting the same source again is insufficient as a reliable hosting fix.
 
-## Start the frontend
+## Updated commands
 
-Use Node 24 and Git Bash in this directory:
+- `npm run check`: lint, source formatting, all 44 unit tests, seven DOM interaction tests and the Vite build. Use locally and in GitHub CI.
+- `npm run build:vercel`: lint, the same unit and DOM tests, then the Vite build. Use as Vercel's Build Command.
+- `npm run build`: the Vite build alone, unchanged.
 
-```bash
-npm ci
-cp .env.vercel.example .env.local
-npm run dev
-```
+The hosting command retains lint and all automated tests. Source formatting remains enforced by GitHub CI, which now runs on both `main` and `master`. Vercel's Git integration and GitHub CI execute independently; this change does not claim Vercel waits for a separate GitHub job.
 
-Open the URL printed by Vite. No MongoDB, Docker or API process is needed for the default preview.
+## Apply the update
+
+Extract `Earthveda_Vercel_Build_Fix.zip` and copy its configuration files and `.github/workflows/ci.yml` into your existing project, preserving their relative paths. Its package file matches the supplied v6 foundation. If you have added dependencies or changed scripts, merge the new `build:vercel` script into your own `package.json` instead of replacing it wholesale. The lockfile is unchanged because no dependencies changed.
+
+In Git Bash, from the folder containing `package.json`, run:
 
 ```bash
 npm run check
+git add package.json vercel.json .github/workflows/ci.yml
+git commit -m "Separate source formatting from Vercel build"
+git push origin master
 ```
 
-This runs lint, formatting, unit/business tests, React DOM interaction tests and the frontend build. The UI suite uses jsdom rather than a real browser.
+If you are applying the earlier generated-directory fix for the first time, also stage `.prettierignore`, `.gitignore`, `.prettierrc.json` and `eslint.config.js` before committing. Keep `.vercel/` excluded from formatting, linting and Git.
 
-## Deploy to Vercel
+In the existing Vercel project's Build and Deployment settings, change any Build Command override to `npm run build:vercel`. Keep install `npm ci --include=dev`, output `dist`, Node 24.x and frontend mode `VITE_COMMERCE_MODE=preview`. Verify the linked repository is the intended `EarthVeda_3.O` repository and production branch `master`. The next deployment must use your new commit, not `9f748f3`.
 
-Follow [the complete Git Bash launch guide](docs/VERCEL_FRONTEND_LAUNCH_BASH.md). Import the repository, select the directory containing this file as the project root and retain the provided `vercel.json` settings:
+The existing headers, caching and SPA fallback are retained. The current backend/image release remains opt-in on `main`; enabling source verification for `master` does not deploy a backend there.
 
-| Setting | Value |
-| --- | --- |
-| Framework | Vite |
-| Node | 24.x |
-| Install | `npm ci --include=dev` |
-| Build | `npm run check` |
-| Output | `dist` |
-| Public mode | `VITE_COMMERCE_MODE=preview` |
+## Verification
 
-Connect `earthvedaessentials.de` from Vercel's Domains settings using the DNS values shown for your project. All future pushes to the linked production branch deploy through Vercel's Git integration.
+The full local command must pass on normally formatted source. The hosting command is additionally tested with deliberately compact, unformatted but semantically identical `vercel.json`, `VERCEL=1` and `NODE_ENV=production`. This checks the original failure boundary without skipping any image, payment, pricing or DOM tests. It is a local simulation of a formatting mismatch, not a claim that Vercel itself modified the file. A real Vercel deployment still needs to run in the user's account.
 
-## Preview boundaries
-
-The preview does not accept orders, charge money, send emails or save newsletter/customer details. Payment choices are illustrative. The actual connected backend currently uses Stripe card checkout. No cards or bank credentials are collected by the preview.
-
-Prices are in EUR: single packs 2,99 €, 8-pack 23,92 €, 16-pack 47,84 €, plus 4,99 € DE or 11,99 € GB delivery. Bundles currently contain foxnuts only.
-
-Fill your public merchant details and approved story in `src/content/site.js`. The requested story PDF was not found. Legal pages are preview drafts, and verified food information remains necessary before real sales. Keep the presentation appropriately protected until public business details are ready. The preview is marked noindex, which is not access control.
-
-## Project map
-
-| Area | Location |
-| --- | --- |
-| Homepage | `src/pages/Home.jsx` |
-| Hero and product discovery | `src/components/EditorialHero.jsx`, `DiscoverySection.jsx` |
-| New design system | `src/styles/redesign.css` |
-| Bilingual redesign copy | `src/content/refreshCopy.js` |
-| Public business and story | `src/content/site.js` |
-| Preview catalogue | `src/content/previewStore.js` |
-| Quiz and cart | `src/components/BoxBuilder.jsx`, `src/lib/cart.js` |
-| Demonstration checkout | `src/pages/PreviewCheckout.jsx` |
-| Legal preview | `src/pages/PreviewLegal.jsx` |
-| Shared pricing/market rules | `shared/pricing.js`, `shared/markets.js` |
-| UI tests | `tests/storefront.ui.js` |
-| Optional retained backend | `server/` |
-
-The backend, admin, worker, MongoDB schema, tests, Docker and restricted SSH deployment scripts remain available. To work on that phase use [the full-stack setup guide](docs/STEP_BY_STEP.md) and [the backend deployment guide](docs/CI_CD_DEPLOYMENT_BASH.md), set `VITE_COMMERCE_MODE=connected` for its frontend, and provision the services they require. Docker builds default to connected mode. GitHub backend/image jobs are opt-in with `BACKEND_ENABLED=true`; frontend verification runs by default.
-
-See [verification](docs/VERIFICATION.md) for actual test results and remaining limits.
+The npm cache-dir, ESLint deprecation and install-script warnings are separate from the reported fatal formatting error. This update does not approve arbitrary installation scripts.
