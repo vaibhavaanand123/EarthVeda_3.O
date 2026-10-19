@@ -11,7 +11,14 @@ import { EMPTY_CART, cartReducer, isCartState, summariseCart } from '../src/lib/
 
 test('preview single packs, including Plant Protein, use the requested 299-cent price', () => {
   assert.equal(PREVIEW_STORE.products.length, 10);
-  assert.ok(PREVIEW_STORE.products.every((p) => p.price === 299));
+  assert.deepEqual(
+    PREVIEW_STORE.products.filter((p) => p.range === 'protein').map((p) => p.price),
+    [1199, 1199, 1199],
+  );
+
+  assert.ok(
+    PREVIEW_STORE.products.filter((p) => p.range === 'foxnuts').every((p) => p.price === 299),
+  );
   assert.deepEqual(
     PREVIEW_STORE.bundles.map((b) => b.price),
     [2392, 4784],
