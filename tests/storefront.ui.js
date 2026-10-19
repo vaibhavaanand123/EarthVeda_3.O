@@ -103,6 +103,25 @@ test('homepage renders instantly without the API and the header switches German/
   assert.equal(document.documentElement.lang, 'en');
 });
 
+test('Plant Protein shows 11.99 in the hero, basket and checkout with market shipping', async () => {
+  mount();
+  const u = user();
+  const hero = within(document.querySelector('.editorial-hero'));
+  await u.click(hero.getByRole('button', { name: 'Plant Protein' }));
+  assert.match(document.querySelector('.hero-scene__price').textContent, /11[.,]99/);
+  await u.click(hero.getByRole('button', { name: /Add to bag:.*Mango/i }));
+  const drawer = within(screen.getByRole('dialog'));
+  assert.match(screen.getByRole('dialog').textContent, /11[.,]99/);
+  assert.match(screen.getByRole('dialog').textContent, /16[.,]98/);
+  await u.selectOptions(drawer.getByRole('combobox'), 'GB');
+  assert.match(screen.getByRole('dialog').textContent, /23[.,]98/);
+  await u.selectOptions(drawer.getByRole('combobox'), 'DE');
+  await u.click(drawer.getByRole('link', { name: 'Checkout' }));
+  await screen.findByRole('heading', { name: 'Meet the checkout.' });
+  assert.match(screen.getByRole('main').textContent, /11[.,]99/);
+  assert.match(screen.getByRole('main').textContent, /16[.,]98/);
+});
+
 test('quiz builds four pairs, allows adjustments, adds a box and recalculates UK shipping', async () => {
   mount();
   const u = user();

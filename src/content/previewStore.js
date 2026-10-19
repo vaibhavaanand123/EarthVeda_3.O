@@ -5,7 +5,7 @@ import { siteContent } from './site.js';
 export const PREVIEW_STORE = {
   products: SEED_PRODUCTS.map((p) => ({
     ...p,
-    price: 299,
+    price: p.range === 'protein' ? 1199 : 299,
     active: true,
     inStock: true,
     // Availability here enables a local demo basket, not a promise of physical stock.

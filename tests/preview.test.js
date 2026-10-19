@@ -9,22 +9,40 @@ import {
 } from '../src/lib/previewCheckout.js';
 import { EMPTY_CART, cartReducer, isCartState, summariseCart } from '../src/lib/cart.js';
 
-test('preview single packs, including Plant Protein, use the requested 299-cent price', () => {
+test('preview Plant Protein costs 1199 cents and foxnut single packs cost 299 cents', () => {
   assert.equal(PREVIEW_STORE.products.length, 10);
   assert.deepEqual(
     PREVIEW_STORE.products.filter((p) => p.range === 'protein').map((p) => p.price),
     [1199, 1199, 1199],
   );
-
-  assert.ok(
-    PREVIEW_STORE.products.filter((p) => p.range === 'foxnuts').every((p) => p.price === 299),
-  );
+  const foxnuts = PREVIEW_STORE.products.filter((p) => p.range === 'foxnuts');
+  assert.equal(foxnuts.length, 7);
+  assert.ok(foxnuts.every((p) => p.price === 299));
   assert.deepEqual(
     PREVIEW_STORE.bundles.map((b) => b.price),
     [2392, 4784],
   );
   assert.equal(PREVIEW_STORE.shipping.DE.fee, 499);
   assert.equal(PREVIEW_STORE.shipping.GB.fee, 1199);
+});
+
+test('each Plant Protein flavour uses its 1199-cent price in DE and GB baskets', () => {
+  const products = new Map(PREVIEW_STORE.products.map((p) => [p.id, p]));
+  const ctx = {
+    resolveProduct: (id) => products.get(id),
+    resolveBundle: (id) => PREVIEW_STORE.bundles.find((b) => b.id === id),
+    shippingRates: PREVIEW_STORE.shipping,
+    lang: 'en',
+  };
+  for (const id of ['protein-mango', 'protein-chocolate', 'protein-royal-cream']) {
+    const cart = cartReducer(EMPTY_CART, { type: 'add', id, amount: 1 });
+    const germany = summariseCart(cart, ctx);
+    assert.equal(germany.subtotal, 1199, id);
+    assert.equal(germany.total, 1698, id);
+    assert.equal(summariseCart({ ...cart, country: 'GB' }, ctx).total, 2398, id);
+    const two = cartReducer(cart, { type: 'set', id, quantity: 2 });
+    assert.equal(summariseCart(two, ctx).total, 2897, id);
+  }
 });
 
 test('preview basket calculates 8 and 16 packs with exact German and UK delivery', () => {

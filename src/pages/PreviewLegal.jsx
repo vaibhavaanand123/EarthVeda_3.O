@@ -114,8 +114,8 @@ export default function PreviewLegal({ slug }) {
       [
         de ? 'Preise in der Vorschau' : 'Preview prices',
         de
-          ? 'Einzelpackung 2,99 €. Mixpaket mit 8 Packungen 23,92 €, mit 16 Packungen 47,84 €. Die Vorschau berechnet den Versand pro Bestellung nach Lieferland. Die Preise werden einschließlich der konfigurierten Umsatzsteuer dargestellt. Steuersätze, Liefergebiete, Zollfragen für Großbritannien und Lieferzeiten müssen vor dem Verkaufsstart bestätigt werden.'
-          : 'Single pack €2.99. An 8-pack is €23.92 and a 16-pack is €47.84. The preview adds delivery per order according to country. Displayed prices include the configured VAT. Tax treatment, delivery coverage, UK customs arrangements and delivery times need confirmation before sales open.',
+          ? 'Foxnuts-Einzelpackung 2,99 €. Plant Protein 11,99 €. Mixpaket mit 8 Packungen 23,92 €, mit 16 Packungen 47,84 €. Die Vorschau berechnet den Versand pro Bestellung nach Lieferland. Die Preise werden einschließlich der konfigurierten Umsatzsteuer dargestellt. Steuersätze, Liefergebiete, Zollfragen für Großbritannien und Lieferzeiten müssen vor dem Verkaufsstart bestätigt werden.'
+          : 'Foxnut single pack €2.99. Plant Protein €11.99. An 8-pack is €23.92 and a 16-pack is €47.84. The preview adds delivery per order according to country. Displayed prices include the configured VAT. Tax treatment, delivery coverage, UK customs arrangements and delivery times need confirmation before sales open.',
       ],
       [
         de ? 'Zahlungen' : 'Payments',
